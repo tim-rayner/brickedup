@@ -14,6 +14,7 @@ Turborepo monorepo (`pnpm` + Turbo). Read domain language before inventing names
 | Path | Role |
 |------|------|
 | `apps/mobile` | Expo app — primary product surface today |
+| `packages/shared/domain` | Shared domain schemas/types (`@repo/domain`) |
 | `packages/theme` | Shared theme package (no separate context) |
 | `packages/eslint-config` | Shared ESLint config |
 | `packages/typescript-config` | Shared TSConfig |
