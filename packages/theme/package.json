@@ -8,7 +8,9 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "lint": "echo 'Add lint script here'"
+    "lint": "echo 'No lint configured for @repo/theme'",
+    "check-types": "tsc --noEmit",
+    "test": "echo 'No tests configured for @repo/theme'"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

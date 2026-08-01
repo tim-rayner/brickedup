@@ -9,13 +9,15 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "lint": "echo 'No lint configured for @repo/domain'"
+    "lint": "echo 'No lint configured for @repo/domain'",
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "3"
   }
 }
