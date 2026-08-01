@@ -37,7 +37,7 @@ export const legoThemeSchema = z.enum([
   'creator',
   'architecture',
   'friends',
-  'ninja_go',
+  'ninjago',
   'harry_potter',
   'marvel',
   'dc',
