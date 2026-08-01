@@ -11,3 +11,7 @@ Use this folder only when a decision is:
 …and it is clearly about the monorepo/workspace itself (e.g. package boundaries, Turbo/pnpm policy), not the mobile product surface.
 
 Same numbering and short format as the mobile ADR README.
+
+## Records
+
+- [0001-user-and-profile-schemas.md](./0001-user-and-profile-schemas.md) — User vs Profile split, shared `@repo/domain` package, activation rules

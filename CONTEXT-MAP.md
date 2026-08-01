@@ -10,7 +10,7 @@ Bricked Up is a multi-context repo. Product language lives at the root; the mobi
 ## Relationships
 
 - **Bricked Up → Mobile**: Mobile implements the product domain; it does not redefine product terms.
-- **Packages**: Shared packages (`theme`, `eslint-config`, `typescript-config`) have no separate contexts. Theme or design vocabulary that becomes contested product language belongs in the root context.
+- **Packages**: Shared packages (`theme`, `eslint-config`, `typescript-config`, `shared/domain`) have no separate contexts. Theme or design vocabulary that becomes contested product language belongs in the root context. Domain types in `packages/shared/domain` implement root glossary terms — they do not invent competing names.
 
 ## Agent playbooks (not glossaries)
 
