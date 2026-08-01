@@ -1,27 +1,17 @@
 {
-  "name": "theme",
+  "name": "@repo/theme",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./icons": "./src/icons/index.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "dev": "echo 'Add dev script here'",
-    "build": "echo 'Add build script here'",
-    "test": "echo 'Add test script here'",
     "lint": "echo 'Add lint script here'"
   },
-  "dependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
-  },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
-  },
-  "peerDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
-  },
-  "optionalDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*"
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5.9.2"
   }
 }
