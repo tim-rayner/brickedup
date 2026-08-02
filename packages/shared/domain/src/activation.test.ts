@@ -36,28 +36,18 @@ function validInput(
       { kind: 'gallery', moderationStatus: 'approved' },
       { kind: 'collection', moderationStatus: 'approved' },
     ],
-    favoriteThemes: overrides.favoriteThemes ?? [
-      { rank: 1, theme: 'star_wars' },
-      { rank: 2, theme: 'technic' },
-      { rank: 3, theme: 'city' },
-    ],
-    topSets: overrides.topSets ?? [
-      { rank: 1, setNumber: '75192' },
-      { rank: 2, setNumber: '42115' },
-      { rank: 3, setNumber: '10294' },
-    ],
+    favoriteThemes: overrides.favoriteThemes ?? [],
+    topSets: overrides.topSets ?? [],
   };
 }
 
 describe('evaluateProfileActivation', () => {
-  it('accepts a complete draft profile', () => {
+  it('accepts a complete draft profile without AFOL lists', () => {
     expect(evaluateProfileActivation(validInput())).toEqual({ ok: true });
   });
 
   it('rejects suspended users', () => {
-    const result = evaluateProfileActivation(
-      validInput({ user: { status: 'suspended' } }),
-    );
+    const result = evaluateProfileActivation(validInput({ user: { status: 'suspended' } }));
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reasons).toContain('user must be active');
@@ -81,21 +71,31 @@ describe('evaluateProfileActivation', () => {
     }
   });
 
-  it('requires unique ranks 1–3 for favourite themes', () => {
+  it('accepts a partial list of favourite themes with unique ranks', () => {
+    expect(
+      evaluateProfileActivation(
+        validInput({
+          favoriteThemes: [
+            { rank: 1, theme: 'star_wars' },
+            { rank: 2, theme: 'technic' },
+          ],
+        }),
+      ),
+    ).toEqual({ ok: true });
+  });
+
+  it('rejects duplicate ranks when favourite themes are provided', () => {
     const result = evaluateProfileActivation(
       validInput({
         favoriteThemes: [
           { rank: 1, theme: 'star_wars' },
           { rank: 1, theme: 'technic' },
-          { rank: 3, theme: 'city' },
         ],
       }),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reasons).toContain(
-        'favourite themes must use ranks 1–3 exactly once each',
-      );
+      expect(result.reasons).toContain('favourite themes must use unique ranks in 1–3');
     }
   });
 });
