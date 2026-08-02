@@ -1,8 +1,10 @@
 # `@repo/domain`
 
-Shared Bricked Up domain shapes (Zod schemas + types).
+Shared Bricked Up domain validation (Zod) and rules.
 
-See [docs/adr/0001-user-and-profile-schemas.md](../../../docs/adr/0001-user-and-profile-schemas.md).
+Shapes are **derived from** `@repo/db` Drizzle tables via `drizzle-zod`, then refined for product invariants (trim/max lengths, age, activation). Uses `zod/v4` (compatible with `zod@^3.25`).
+
+See [docs/adr/0002-drizzle-as-schema-source-of-truth.md](../../../docs/adr/0002-drizzle-as-schema-source-of-truth.md).
 
 ```ts
 import { userSchema, evaluateProfileActivation } from '@repo/domain';

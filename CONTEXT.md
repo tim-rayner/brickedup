@@ -20,16 +20,28 @@ _Avoid_: Profile (when meaning the private account); auth user (in product prose
 A member's public dating presence in the product (1:1 with a User).
 _Avoid_: Account, user page, bio (when meaning the whole presence)
 
+**Display location**:
+The human-readable place string shown on a Profile (e.g. "Manchester, UK").
+_Avoid_: Location (ambiguous); coordinates; geo
+
+**Profile location**:
+A member's private coordinates used for distance matching — not shown on the public Profile card.
+_Avoid_: Display location; GPS pin (in product prose); geo blob
+
 **Matching preferences**:
 Discovery filters for who a member wants to see (interested-in, age range, distance) — not part of the Profile card itself.
 _Avoid_: Settings (when meaning these filters); Profile preferences (ambiguous)
 
+**Onboarding**:
+The first-run stepped flow that takes a new User from sign-up to an `active` Profile (activation bar met). Completing it sets `onboardingCompletedAt` and leaves the Profile discoverable once both User and Profile are `active`.
+_Avoid_: Profile setup (vague); registration (when meaning only credentials); activation (when meaning the rule check rather than the member-facing flow)
+
 **Top set**:
-One of up to three LEGO sets featured on a Profile, added barcode-first with a manual picker fallback.
+One of up to three LEGO sets featured on a Profile (set number + name at minimum). Optional for an active Profile; offered during Onboarding but can be skipped. v1 entry is free-text; barcode-first and catalog pickers are later upgrades.
 _Avoid_: Favourite set (when meaning this ranked slot); collection (when meaning a single set)
 
 **Favourite theme**:
-One of up to three ranked LEGO themes on a Profile, chosen from a controlled list.
+One of up to three ranked LEGO themes on a Profile, chosen from a controlled list. Optional for an active Profile; offered during Onboarding but can be skipped.
 _Avoid_: Interest tag; hobby
 
 **Collection photo**:

@@ -1,18 +1,15 @@
-import { z } from 'zod';
+import { users } from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-import { userStatusSchema } from './enums';
+import { createSelectSchema } from './drizzle-zod';
 
 /**
  * Thin app account row keyed to Supabase `auth.users.id`.
  * Credentials stay in Supabase Auth — this shape is moderation/onboarding only.
+ * Derived from `@repo/db` `users` table.
  */
-export const userSchema = z.object({
-  id: z.string().uuid(),
+export const userSchema = createSelectSchema(users, {
   email: z.string().email(),
-  status: userStatusSchema,
-  onboardingCompletedAt: z.coerce.date().nullable(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
 export type User = z.infer<typeof userSchema>;

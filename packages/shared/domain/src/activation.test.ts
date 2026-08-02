@@ -10,6 +10,7 @@ function validInput(
   overrides: Partial<{
     user: ProfileActivationInput['user'];
     profile: Partial<ProfileActivationInput['profile']>;
+    location: Partial<ProfileActivationInput['location']>;
     photos: ProfileActivationInput['photos'];
     favoriteThemes: ProfileActivationInput['favoriteThemes'];
     topSets: ProfileActivationInput['topSets'];
@@ -24,9 +25,12 @@ function validInput(
       gender: 'male',
       bio: 'AFOL looking for builds and coffee.',
       displayLocation: 'Manchester, UK',
+      ...overrides.profile,
+    },
+    location: {
       latitude: 53.4808,
       longitude: -2.2426,
-      ...overrides.profile,
+      ...overrides.location,
     },
     photos: overrides.photos ?? [
       { kind: 'gallery', moderationStatus: 'approved' },

@@ -15,3 +15,4 @@ Same numbering and short format as the mobile ADR README.
 ## Records
 
 - [0001-user-and-profile-schemas.md](./0001-user-and-profile-schemas.md) — User vs Profile split, shared `@repo/domain` package, activation rules
+- [0002-drizzle-as-schema-source-of-truth.md](./0002-drizzle-as-schema-source-of-truth.md) — `@repo/db` owns Drizzle/RLS; domain Zod derived; shared PKs; Profile location split

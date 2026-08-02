@@ -13,6 +13,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@repo/db": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-zod": "^0.8.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {

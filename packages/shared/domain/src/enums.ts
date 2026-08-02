@@ -1,54 +1,39 @@
-import { z } from 'zod';
+import {
+  genderEnum,
+  interestedInEnum,
+  legoThemeEnum,
+  moderationStatusEnum,
+  photoKindEnum,
+  profileStatusEnum,
+  topSetSourceEnum,
+  userStatusEnum,
+} from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-/** App-level account status on `public.users` (not Supabase Auth). */
-export const userStatusSchema = z.enum(['active', 'suspended', 'deleted']);
+import { createSelectSchema } from './drizzle-zod';
+
+export const userStatusSchema = createSelectSchema(userStatusEnum);
 export type UserStatus = z.infer<typeof userStatusSchema>;
 
-/** Dating Profile lifecycle. Discovery only when `active` (and User is `active`). */
-export const profileStatusSchema = z.enum(['draft', 'active', 'paused', 'removed']);
+export const profileStatusSchema = createSelectSchema(profileStatusEnum);
 export type ProfileStatus = z.infer<typeof profileStatusSchema>;
 
-export const genderSchema = z.enum(['male', 'female']);
+export const genderSchema = createSelectSchema(genderEnum);
 export type Gender = z.infer<typeof genderSchema>;
 
-/** Who the member wants to see in discovery. */
-export const interestedInSchema = z.enum(['male', 'female', 'both']);
+export const interestedInSchema = createSelectSchema(interestedInEnum);
 export type InterestedIn = z.infer<typeof interestedInSchema>;
 
-export const photoKindSchema = z.enum(['gallery', 'collection']);
+export const photoKindSchema = createSelectSchema(photoKindEnum);
 export type PhotoKind = z.infer<typeof photoKindSchema>;
 
-export const moderationStatusSchema = z.enum(['pending', 'approved', 'rejected']);
+export const moderationStatusSchema = createSelectSchema(moderationStatusEnum);
 export type ModerationStatus = z.infer<typeof moderationStatusSchema>;
 
-/** How a top set was attached to a Profile. */
-export const topSetSourceSchema = z.enum(['scan', 'manual']);
+export const topSetSourceSchema = createSelectSchema(topSetSourceEnum);
 export type TopSetSource = z.infer<typeof topSetSourceSchema>;
 
-/**
- * Controlled favourite-theme list for v1.
- * Extend deliberately — free text is not allowed on Profile theme ranks.
- */
-export const legoThemeSchema = z.enum([
-  'star_wars',
-  'technic',
-  'city',
-  'ideas',
-  'creator',
-  'architecture',
-  'friends',
-  'ninjago',
-  'harry_potter',
-  'marvel',
-  'dc',
-  'icons',
-  'speed_champions',
-  'botanical',
-  'castle',
-  'space',
-  'trains',
-  'other',
-]);
+export const legoThemeSchema = createSelectSchema(legoThemeEnum);
 export type LegoTheme = z.infer<typeof legoThemeSchema>;
 
 /** Rank slots for top-3 lists (themes and sets). */

@@ -23,37 +23,30 @@ describe('profileSchema', () => {
   it('accepts a valid profile', () => {
     const parsed = profileSchema.parse({
       id: '11111111-1111-4111-8111-111111111111',
-      userId: '22222222-2222-4222-8222-222222222222',
       status: 'draft',
       displayName: 'BrickFan',
       dateOfBirth: '1995-06-15',
       gender: 'male',
       bio: 'AFOL looking for builds and coffee.',
       displayLocation: 'Manchester, UK',
-      latitude: 53.4808,
-      longitude: -2.2426,
-      locationUpdatedAt: '2026-08-01T00:00:00.000Z',
       createdAt: '2026-08-01T00:00:00.000Z',
       updatedAt: '2026-08-01T00:00:00.000Z',
     });
 
     expect(parsed.displayName).toBe('BrickFan');
-    expect(parsed.locationUpdatedAt).toBeInstanceOf(Date);
+    expect(parsed.id).toBe('11111111-1111-4111-8111-111111111111');
+    expect(parsed.createdAt).toBeInstanceOf(Date);
   });
 
   it('rejects empty display names', () => {
     const result = profileSchema.safeParse({
       id: '11111111-1111-4111-8111-111111111111',
-      userId: '22222222-2222-4222-8222-222222222222',
       status: 'draft',
       displayName: '   ',
       dateOfBirth: '1995-06-15',
       gender: 'male',
       bio: 'bio',
       displayLocation: 'Manchester, UK',
-      latitude: 53.4808,
-      longitude: -2.2426,
-      locationUpdatedAt: '2026-08-01T00:00:00.000Z',
       createdAt: '2026-08-01T00:00:00.000Z',
       updatedAt: '2026-08-01T00:00:00.000Z',
     });

@@ -1,24 +1,21 @@
-import { z } from 'zod';
+import { profileTopSets } from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-import { topSetSourceSchema, topThreeRankSchema } from './enums';
+import { createSelectSchema } from './drizzle-zod';
+import { topThreeRankSchema } from './enums';
 
 /**
  * One of a Profile's top 3 LEGO sets.
  * Prefer barcode scan; manual picker is the fallback when scan fails.
+ * Derived from `@repo/db` `profile_top_sets` table.
  */
-export const profileTopSetSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
+export const profileTopSetSchema = createSelectSchema(profileTopSets, {
   rank: topThreeRankSchema,
-  source: topSetSourceSchema,
-  /** Raw barcode when sourced from scan; null for pure manual picks. */
   barcode: z.string().min(1).nullable(),
   setNumber: z.string().min(1),
   name: z.string().min(1),
   imageUrl: z.string().url().nullable(),
   theme: z.string().min(1).nullable(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
 export type ProfileTopSet = z.infer<typeof profileTopSetSchema>;

@@ -1,6 +1,7 @@
 import { MAX_GALLERY_PHOTOS } from './profile-photo';
 import type { ProfilePhoto } from './profile-photo';
 import { isAtLeastMinimumAge, type Profile } from './profile';
+import type { ProfileLocation } from './profile-location';
 import {
   REQUIRED_FAVORITE_THEME_COUNT,
   type ProfileFavoriteTheme,
@@ -18,9 +19,8 @@ export type ProfileActivationInput = {
     | 'gender'
     | 'bio'
     | 'displayLocation'
-    | 'latitude'
-    | 'longitude'
   >;
+  location: Pick<ProfileLocation, 'latitude' | 'longitude'>;
   photos: ReadonlyArray<Pick<ProfilePhoto, 'kind' | 'moderationStatus'>>;
   favoriteThemes: ReadonlyArray<Pick<ProfileFavoriteTheme, 'rank' | 'theme'>>;
   topSets: ReadonlyArray<Pick<ProfileTopSet, 'rank' | 'setNumber'>>;
@@ -66,10 +66,7 @@ export function evaluateProfileActivation(input: ProfileActivationInput): Profil
     reasons.push('display location is required');
   }
 
-  if (
-    Number.isNaN(input.profile.latitude) ||
-    Number.isNaN(input.profile.longitude)
-  ) {
+  if (Number.isNaN(input.location.latitude) || Number.isNaN(input.location.longitude)) {
     reasons.push('geo coordinates are required');
   }
 

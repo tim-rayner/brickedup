@@ -39,3 +39,7 @@ yarn-error.log*
 
 
 .pnpm-store
+
+# Local agent skill installs
+.agents/
+skills-lock.json

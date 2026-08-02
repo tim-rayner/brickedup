@@ -1,15 +1,12 @@
-import { z } from 'zod';
+import { profileFavoriteThemes } from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-import { legoThemeSchema, topThreeRankSchema } from './enums';
+import { createSelectSchema } from './drizzle-zod';
+import { topThreeRankSchema } from './enums';
 
 /** Ordered favourite LEGO theme on a Profile (exactly three when active). */
-export const profileFavoriteThemeSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  theme: legoThemeSchema,
+export const profileFavoriteThemeSchema = createSelectSchema(profileFavoriteThemes, {
   rank: topThreeRankSchema,
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
 export type ProfileFavoriteTheme = z.infer<typeof profileFavoriteThemeSchema>;
