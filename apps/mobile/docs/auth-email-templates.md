@@ -6,7 +6,7 @@ Local CLI reads `supabase/templates/` via `config.toml`. **Hosted** projects nee
 
 1. Open [Authentication → Email Templates → Confirm sign up](https://supabase.com/dashboard/project/_/auth/templates).
 2. Set subject: `Your Bricked Up confirmation code`
-3. Set body to include **`{{ .Token }}`** (not only `{{ .ConfirmationURL }}`):
+3. Set body to **OTP only** — include `{{ .Token }}` and **do not** include `{{ .ConfirmationURL }}`:
 
 ```html
 <h2>Confirm your Bricked Up account</h2>
@@ -15,4 +15,10 @@ Local CLI reads `supabase/templates/` via `config.toml`. **Hosted** projects nee
 <p>This code expires shortly. If you didn’t create an account, you can ignore this email.</p>
 ```
 
-Without `{{ .Token }}`, the email has no OTP — only a link — and the app’s code entry screen cannot work.
+### Why no confirmation link?
+
+If the template also has `{{ .ConfirmationURL }}`, some email clients / scanners open the link automatically (prefetch). That **consumes the same token** as the OTP, so entering the code in the app fails immediately with “Token has expired or is invalid”.
+
+### App verification
+
+The app verifies with `verifyOtp({ email, token, type: 'email' })`. Do not use deprecated `type: 'signup'` for verification.
