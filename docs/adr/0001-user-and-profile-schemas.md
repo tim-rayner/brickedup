@@ -8,7 +8,7 @@ We need durable shapes for who can sign in versus what appears in discovery, bef
 
 ## Status
 
-accepted
+accepted — AFOL themes/sets activation requirement superseded by [apps/mobile/docs/adr/0004-optional-afol-signals-for-activation.md](../../apps/mobile/docs/adr/0004-optional-afol-signals-for-activation.md)
 
 ## Schema summary
 
@@ -16,7 +16,7 @@ accepted
 - **Profile** (1:1): `status: draft | active | paused | removed`; identity fields (display name, DOB 18+, gender `male | female`, bio, display location + hidden geo).
 - **MatchingPreferences** (1:1): `interestedIn` male / female / both, age range, max distance — not mixed into Profile.
 - **ProfilePhoto**: separate rows; `kind: gallery | collection`; ≥1 gallery + 1 collection to leave `draft`.
-- **AFOL signals (required for active):** top 3 favourite themes (controlled list); top 3 sets (barcode-first, manual picker fallback); collection photo.
+- **AFOL signals:** collection photo required for `active`; favourite themes and top sets are optional (up to three each) — see ADR 0004.
 - **Out of scope:** swipes, matches, messages.
 
 ## Considered options

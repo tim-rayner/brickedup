@@ -23,4 +23,5 @@ export const profileTopSetSchema = z.object({
 
 export type ProfileTopSet = z.infer<typeof profileTopSetSchema>;
 
+/** Soft cap for top sets on a Profile (optional signal). */
 export const REQUIRED_TOP_SET_COUNT = 3;
