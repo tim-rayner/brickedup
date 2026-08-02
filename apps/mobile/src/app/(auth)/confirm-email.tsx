@@ -8,64 +8,46 @@ import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Brand } from '@/constants/brand';
 import { Spacing } from '@/constants/theme';
-import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { getAuthErrorMessage } from '@/lib/auth-error';
+import { supabase } from '@/lib/supabase';
 
 export default function ConfirmEmailScreen() {
-  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
-  const email = (emailParam ?? '').trim();
-  const [token, setToken] = useState('');
+  const { email } = useLocalSearchParams<{ email?: string }>();
+  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   const onVerify = async () => {
+    if (!email) return;
     setError(null);
-    setInfo(null);
-    if (!isSupabaseConfigured) {
-      setError('Supabase env vars are not configured.');
-      return;
-    }
-    if (!email) {
-      setError('Missing email — go back and sign up again.');
-      return;
-    }
-    const code = token.replace(/\s/g, '');
-    if (!/^\d{6,8}$/.test(code)) {
-      setError('Enter the code from your email.');
-      return;
-    }
-
-    setLoading(true);
+    setVerifying(true);
     try {
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
-        token: code,
+        token: code.trim(),
         type: 'signup',
       });
       if (verifyError) throw verifyError;
-      router.replace('/');
+      router.replace('/(onboarding)');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not verify code');
+      setError(getAuthErrorMessage(e, 'Could not verify code'));
     } finally {
-      setLoading(false);
+      setVerifying(false);
     }
   };
 
   const onResend = async () => {
+    if (!email) return;
     setError(null);
-    setInfo(null);
-    if (!isSupabaseConfigured || !email) return;
     setResending(true);
     try {
-      const { error: resendError } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-      });
+      const { error: resendError } = await supabase.auth.resend({ type: 'signup', email });
       if (resendError) throw resendError;
-      setInfo('A new code is on the way.');
+      setResent(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not resend code');
+      setError(getAuthErrorMessage(e, 'Could not resend code'));
     } finally {
       setResending(false);
     }
@@ -73,59 +55,57 @@ export default function ConfirmEmailScreen() {
 
   return (
     <AuthShell
-      title="Enter your code"
-      subtitle={
-        email
-          ? `We sent a 6-digit code to ${email}.`
-          : 'We sent a 6-digit code to your email.'
-      }
+      title="Check your email"
+      subtitle="Tap the confirmation link, or enter the 6-digit code from the same email."
       showBrand={false}>
       <Animated.View entering={FadeIn.duration(400)} style={styles.panel}>
-        <TextField
-          label="Confirmation code"
-          value={token}
-          onChangeText={setToken}
-          keyboardType="number-pad"
-          autoComplete="one-time-code"
-          textContentType="oneTimeCode"
-          maxLength={8}
-          placeholder="123456"
-        />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        {info ? <Text style={styles.info}>{info}</Text> : null}
-        <Button
-          label="Confirm email"
-          onPress={onVerify}
-          loading={loading}
-          disabled={token.trim().length < 6}
-        />
-        <Button
-          label="Resend code"
-          variant="ghost"
-          onPress={onResend}
-          loading={resending}
-          disabled={!email}
-        />
+        <Text style={styles.copy}>
+          We sent a link and a code{email ? ` to ${email}` : ''}. Tapping the link on this device
+          works too, but the code below doesn&apos;t need a deep link — handy on a simulator with
+          no real mailbox.
+        </Text>
       </Animated.View>
+      <TextField
+        label="6-digit code"
+        keyboardType="number-pad"
+        autoComplete="one-time-code"
+        maxLength={6}
+        value={code}
+        onChangeText={setCode}
+      />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <Button
+        label="Verify code"
+        onPress={onVerify}
+        loading={verifying}
+        disabled={!email || code.trim().length !== 6}
+      />
+      <Button
+        label={resent ? 'Code resent' : 'Resend code'}
+        variant="ghost"
+        onPress={onResend}
+        loading={resending}
+        disabled={!email || resending}
+      />
     </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
   panel: {
-    gap: Spacing.three,
     padding: Spacing.four,
     borderRadius: 18,
     backgroundColor: Brand.white,
     borderWidth: 1,
     borderColor: Brand.paperDeep,
   },
+  copy: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: Brand.ink,
+  },
   error: {
     color: Brand.danger,
-    fontSize: 14,
-  },
-  info: {
-    color: Brand.success,
     fontSize: 14,
   },
 });

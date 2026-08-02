@@ -15,8 +15,8 @@ accepted — AFOL themes/sets activation requirement superseded by [apps/mobile/
 ## Schema summary
 
 - **User** (`public.users`): `id` = `auth.users.id`, denormalized `email`, `status: active | suspended | deleted`, onboarding completion, timestamps. Soft-delete + delayed personal-data purge.
-- **Profile** (1:1): `status: draft | active | paused | removed`; identity fields (display name, DOB 18+, gender `male | female`, bio, display location + hidden geo).
-- **MatchingPreferences** (1:1): `interestedIn` male / female / both, age range, max distance — not mixed into Profile.
+- **Profile** (1:1, shared PK with User): `status: draft | active | paused | removed`; identity fields (display name, DOB 18+, gender `male | female`, bio, display location). Private WGS84 lives in **Profile location** (`profile_locations`, shared PK) — see ADR 0002.
+- **MatchingPreferences** (1:1, shared PK with Profile): `interestedIn` male / female / both, age range, max distance — not mixed into Profile.
 - **ProfilePhoto**: separate rows; `kind: gallery | collection`; ≥1 gallery + 1 collection to leave `draft`.
 - **AFOL signals:** collection photo required for `active`; favourite themes and top sets are optional (up to three each) — see ADR 0004.
 - **Out of scope:** swipes, matches, messages.

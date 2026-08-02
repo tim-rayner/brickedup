@@ -47,3 +47,14 @@ pnpm db:migrate    # applies files under packages/shared/db/drizzle/
 5. Optional: `pnpm db:studio` to browse via Drizzle Studio.
 
 Do **not** re-run a migration that already applied unless you are resetting a throwaway project. For a clean local reset, use a fresh Supabase branch/project or drop public tables carefully (auth schema stays managed by Supabase).
+
+## Relationship to `supabase/`
+
+| Concern | Owner |
+|---------|--------|
+| Tables, enums, uniqueness, **table RLS** | `@repo/db` (`drizzle/` + `pnpm db:migrate`) |
+| Auth → `public.users` trigger | `supabase/migrations/` |
+| Storage buckets / storage RLS | `supabase/migrations/` |
+| Edge Functions (`@supabase/server`) | `supabase/functions/` |
+
+Do **not** redefine `public.*` tables in `supabase/migrations` — that forks the Drizzle source of truth.
