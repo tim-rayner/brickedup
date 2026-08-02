@@ -24,7 +24,7 @@ Turborepo monorepo (`pnpm` + Turbo). Read domain language before inventing names
 
 - Install: `pnpm install` from repo root
 - Dev / build / lint / types: `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm check-types` (Turbo)
-- DB migrations: `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio` (from `@repo/db`; requires `packages/shared/db/.env`)
+- DB migrations: `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio` (from `@repo/db`; requires `packages/shared/db/.env`). Table RLS lives in Drizzle. `supabase/migrations` is only for Auth triggers and Storage — never duplicate `public.*` tables there.
 
 ## Context vs playbook vs ADR
 

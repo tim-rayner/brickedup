@@ -62,22 +62,15 @@ function ageFromDob(dateOfBirth: string, now = new Date()): number {
   return age;
 }
 
-async function getProfileId(
-  supabase: { from: (t: string) => any },
-  userId: string,
-): Promise<{ id: string } | Response> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-  if (!data) return Response.json({ error: 'Profile not found — call bootstrap first' }, { status: 400 });
-  return { id: data.id as string };
+function hasUniqueRanksInRange(ranks: ReadonlyArray<number>): boolean {
+  const set = new Set(ranks);
+  if (set.size !== ranks.length) return false;
+  return ranks.every((rank) => rank === 1 || rank === 2 || rank === 3);
 }
 
 /**
- * Onboarding mutations (ADR 0002–0005). Client Auth session; this function owns writes.
+ * Onboarding mutations against @repo/db shapes (shared PK = auth.uid()).
+ * RLS policies from Drizzle; this function uses the caller-scoped client.
  */
 export default {
   fetch: withSupabase({ auth: 'user' }, async (req, ctx) => {
@@ -92,9 +85,8 @@ export default {
       return Response.json({ error: 'Invalid body' }, { status: 400 });
     }
 
-    const profileRef = await getProfileId(ctx.supabase, userId);
-    if (profileRef instanceof Response) return profileRef;
-    const profileId = profileRef.id;
+    // Shared PK: profile id === user id === auth.uid()
+    const profileId = userId;
     const now = new Date().toISOString();
 
     if (body.action === 'save_identity') {
@@ -108,16 +100,37 @@ export default {
       if (body.gender !== 'male' && body.gender !== 'female') {
         return Response.json({ error: 'Invalid gender' }, { status: 400 });
       }
-      const { error } = await ctx.supabase
+
+      const { data: existing } = await ctx.supabase
         .from('profiles')
-        .update({
+        .select('id')
+        .eq('id', profileId)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await ctx.supabase
+          .from('profiles')
+          .update({
+            display_name: displayName,
+            date_of_birth: body.dateOfBirth,
+            gender: body.gender,
+            updated_at: now,
+          })
+          .eq('id', profileId);
+        if (error) return Response.json({ error: error.message }, { status: 500 });
+      } else {
+        // NOT NULL columns: bio / display_location filled in place step (empty until then).
+        const { error } = await ctx.supabase.from('profiles').insert({
+          id: profileId,
+          status: 'draft',
           display_name: displayName,
           date_of_birth: body.dateOfBirth,
           gender: body.gender,
-          updated_at: now,
-        })
-        .eq('id', profileId);
-      if (error) return Response.json({ error: error.message }, { status: 500 });
+          bio: '',
+          display_location: '',
+        });
+        if (error) return Response.json({ error: error.message }, { status: 500 });
+      }
       return Response.json({ ok: true });
     }
 
@@ -135,23 +148,32 @@ export default {
         return Response.json({ error: 'Invalid preference ranges' }, { status: 400 });
       }
 
+      const { data: profile } = await ctx.supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', profileId)
+        .maybeSingle();
+      if (!profile) {
+        return Response.json({ error: 'Profile not found — save identity first' }, { status: 400 });
+      }
+
       const { data: existing } = await ctx.supabase
         .from('matching_preferences')
         .select('id')
-        .eq('user_id', userId)
+        .eq('id', profileId)
         .maybeSingle();
 
       const payload = {
         interested_in: body.interestedIn,
         min_age: body.minAge,
         max_age: body.maxAge,
-        max_distance_km: body.maxDistanceKm,
+        max_distance_km: Math.round(body.maxDistanceKm),
         updated_at: now,
       };
 
       const { error } = existing
-        ? await ctx.supabase.from('matching_preferences').update(payload).eq('user_id', userId)
-        : await ctx.supabase.from('matching_preferences').insert({ user_id: userId, ...payload });
+        ? await ctx.supabase.from('matching_preferences').update(payload).eq('id', profileId)
+        : await ctx.supabase.from('matching_preferences').insert({ id: profileId, ...payload });
 
       if (error) return Response.json({ error: error.message }, { status: 500 });
       return Response.json({ ok: true });
@@ -165,6 +187,15 @@ export default {
           { error: 'Need 1–6 gallery paths and one collection path' },
           { status: 400 },
         );
+      }
+
+      const { data: profile } = await ctx.supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', profileId)
+        .maybeSingle();
+      if (!profile) {
+        return Response.json({ error: 'Profile not found — save identity first' }, { status: 400 });
       }
 
       await ctx.supabase.from('profile_photos').delete().eq('profile_id', profileId);
@@ -199,8 +230,8 @@ export default {
         return Response.json({ error: 'At most 3 favourite themes' }, { status: 400 });
       }
       const ranks = themes.map((t) => t.rank);
-      if (new Set(ranks).size !== ranks.length) {
-        return Response.json({ error: 'Theme ranks must be unique' }, { status: 400 });
+      if (themes.length > 0 && !hasUniqueRanksInRange(ranks)) {
+        return Response.json({ error: 'Theme ranks must be unique in 1–3' }, { status: 400 });
       }
 
       await ctx.supabase.from('profile_favorite_themes').delete().eq('profile_id', profileId);
@@ -223,8 +254,8 @@ export default {
         return Response.json({ error: 'At most 3 top sets' }, { status: 400 });
       }
       const ranks = topSets.map((t) => t.rank);
-      if (new Set(ranks).size !== ranks.length) {
-        return Response.json({ error: 'Top set ranks must be unique' }, { status: 400 });
+      if (topSets.length > 0 && !hasUniqueRanksInRange(ranks)) {
+        return Response.json({ error: 'Top set ranks must be unique in 1–3' }, { status: 400 });
       }
 
       await ctx.supabase.from('profile_top_sets').delete().eq('profile_id', profileId);
@@ -266,27 +297,41 @@ export default {
         return Response.json({ error: 'Invalid coordinates' }, { status: 400 });
       }
 
-      const { error } = await ctx.supabase
+      const { error: profileError } = await ctx.supabase
         .from('profiles')
         .update({
           display_location: displayLocation,
-          latitude: body.latitude,
-          longitude: body.longitude,
-          location_updated_at: now,
           bio,
           updated_at: now,
         })
         .eq('id', profileId);
-      if (error) return Response.json({ error: error.message }, { status: 500 });
+      if (profileError) return Response.json({ error: profileError.message }, { status: 500 });
+
+      const { data: existingLocation } = await ctx.supabase
+        .from('profile_locations')
+        .select('id')
+        .eq('id', profileId)
+        .maybeSingle();
+
+      const locationPayload = {
+        latitude: body.latitude,
+        longitude: body.longitude,
+        location_updated_at: now,
+        updated_at: now,
+      };
+
+      const { error: locationError } = existingLocation
+        ? await ctx.supabase.from('profile_locations').update(locationPayload).eq('id', profileId)
+        : await ctx.supabase.from('profile_locations').insert({ id: profileId, ...locationPayload });
+
+      if (locationError) return Response.json({ error: locationError.message }, { status: 500 });
       return Response.json({ ok: true });
     }
 
     if (body.action === 'complete') {
       const { data: profile, error: profileError } = await ctx.supabase
         .from('profiles')
-        .select(
-          'status, display_name, date_of_birth, gender, bio, display_location, latitude, longitude',
-        )
+        .select('status, display_name, date_of_birth, gender, bio, display_location')
         .eq('id', profileId)
         .single();
       if (profileError || !profile) {
@@ -299,15 +344,31 @@ export default {
         .eq('id', userId)
         .single();
 
+      const { data: location } = await ctx.supabase
+        .from('profile_locations')
+        .select('latitude, longitude')
+        .eq('id', profileId)
+        .maybeSingle();
+
       const { data: photos } = await ctx.supabase
         .from('profile_photos')
         .select('kind, moderation_status')
         .eq('profile_id', profileId);
 
+      const { data: themes } = await ctx.supabase
+        .from('profile_favorite_themes')
+        .select('rank, theme')
+        .eq('profile_id', profileId);
+
+      const { data: topSets } = await ctx.supabase
+        .from('profile_top_sets')
+        .select('rank, set_number')
+        .eq('profile_id', profileId);
+
       const { data: prefs } = await ctx.supabase
         .from('matching_preferences')
         .select('id')
-        .eq('user_id', userId)
+        .eq('id', profileId)
         .maybeSingle();
 
       const reasons: string[] = [];
@@ -319,7 +380,11 @@ export default {
       if (!profile.gender) reasons.push('gender is required');
       if (!profile.bio?.trim()) reasons.push('bio is required');
       if (!profile.display_location?.trim()) reasons.push('display location is required');
-      if (profile.latitude == null || profile.longitude == null) {
+      if (
+        location == null ||
+        Number.isNaN(location.latitude) ||
+        Number.isNaN(location.longitude)
+      ) {
         reasons.push('geo coordinates are required');
       }
       if (!prefs) reasons.push('matching preferences are required');
@@ -332,6 +397,21 @@ export default {
       );
       if (gallery.length < 1) reasons.push('at least one approved gallery photo is required');
       if (collection.length !== 1) reasons.push('exactly one approved collection photo is required');
+
+      // Optional AFOL signals (ADR 0004): validate shape only when present.
+      const themeRanks = (themes ?? []).map((t) => t.rank as number);
+      if ((themes ?? []).length > 3) {
+        reasons.push('at most 3 favourite themes are allowed');
+      } else if (themeRanks.length > 0 && !hasUniqueRanksInRange(themeRanks)) {
+        reasons.push('favourite themes must use unique ranks in 1–3');
+      }
+
+      const setRanks = (topSets ?? []).map((t) => t.rank as number);
+      if ((topSets ?? []).length > 3) {
+        reasons.push('at most 3 top sets are allowed');
+      } else if (setRanks.length > 0 && !hasUniqueRanksInRange(setRanks)) {
+        reasons.push('top sets must use unique ranks in 1–3');
+      }
 
       if (reasons.length > 0) {
         return Response.json({ ok: false, reasons }, { status: 400 });
