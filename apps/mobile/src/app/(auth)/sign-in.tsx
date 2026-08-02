@@ -6,6 +6,7 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Brand } from '@/constants/brand';
+import { getAuthErrorMessage } from '@/lib/auth-error';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 export default function SignInScreen() {
@@ -29,7 +30,7 @@ export default function SignInScreen() {
       if (signInError) throw signInError;
       router.replace('/');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not sign in');
+      setError(getAuthErrorMessage(e, 'Could not sign in'));
     } finally {
       setLoading(false);
     }
