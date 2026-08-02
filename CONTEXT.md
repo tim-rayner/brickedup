@@ -29,7 +29,7 @@ The first-run stepped flow that takes a new User from sign-up to an `active` Pro
 _Avoid_: Profile setup (vague); registration (when meaning only credentials); activation (when meaning the rule check rather than the member-facing flow)
 
 **Top set**:
-One of up to three LEGO sets featured on a Profile, added barcode-first with a manual picker fallback. Optional for an active Profile; offered during Onboarding but can be skipped.
+One of up to three LEGO sets featured on a Profile (set number + name at minimum). Optional for an active Profile; offered during Onboarding but can be skipped. v1 entry is free-text; barcode-first and catalog pickers are later upgrades.
 _Avoid_: Favourite set (when meaning this ranked slot); collection (when meaning a single set)
 
 **Favourite theme**:
