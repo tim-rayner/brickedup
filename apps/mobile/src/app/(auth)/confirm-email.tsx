@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
@@ -12,22 +12,26 @@ import { getAuthErrorMessage } from '@/lib/auth-error';
 import { supabase } from '@/lib/supabase';
 
 export default function ConfirmEmailScreen() {
-  const { email } = useLocalSearchParams<{ email?: string }>();
+  const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
+  const email = useMemo(() => (emailParam ?? '').trim().toLowerCase(), [emailParam]);
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
 
+  const normalizedCode = code.replace(/\s/g, '');
+
   const onVerify = async () => {
     if (!email) return;
     setError(null);
     setVerifying(true);
     try {
+      // `signup` / `magiclink` are deprecated — use `email` for confirm-signup OTPs.
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
-        token: code.trim(),
-        type: 'signup',
+        token: normalizedCode,
+        type: 'email',
       });
       if (verifyError) throw verifyError;
       router.replace('/(onboarding)');
@@ -41,8 +45,10 @@ export default function ConfirmEmailScreen() {
   const onResend = async () => {
     if (!email) return;
     setError(null);
+    setResent(false);
     setResending(true);
     try {
+      // Resend still uses the signup confirmation mailer.
       const { error: resendError } = await supabase.auth.resend({ type: 'signup', email });
       if (resendError) throw resendError;
       setResent(true);
@@ -55,30 +61,36 @@ export default function ConfirmEmailScreen() {
 
   return (
     <AuthShell
-      title="Check your email"
-      subtitle="Tap the confirmation link, or enter the 6-digit code from the same email."
+      title="Enter your code"
+      subtitle={
+        email
+          ? `We sent a 6-digit code to ${email}.`
+          : 'We sent a 6-digit code to your email.'
+      }
       showBrand={false}>
       <Animated.View entering={FadeIn.duration(400)} style={styles.panel}>
         <Text style={styles.copy}>
-          We sent a link and a code{email ? ` to ${email}` : ''}. Tapping the link on this device
-          works too, but the code below doesn&apos;t need a deep link — handy on a simulator with
-          no real mailbox.
+          Enter the code from the email. If it keeps failing, tap Resend — a confirmation link in
+          the same email can invalidate the code if an email client opens it first.
         </Text>
       </Animated.View>
       <TextField
         label="6-digit code"
         keyboardType="number-pad"
         autoComplete="one-time-code"
-        maxLength={6}
+        textContentType="oneTimeCode"
+        maxLength={8}
         value={code}
         onChangeText={setCode}
+        placeholder="123456"
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {resent ? <Text style={styles.info}>New code sent — use the latest email.</Text> : null}
       <Button
         label="Verify code"
         onPress={onVerify}
         loading={verifying}
-        disabled={!email || code.trim().length !== 6}
+        disabled={!email || !/^\d{6,8}$/.test(normalizedCode)}
       />
       <Button
         label={resent ? 'Code resent' : 'Resend code'}
@@ -106,6 +118,10 @@ const styles = StyleSheet.create({
   },
   error: {
     color: Brand.danger,
+    fontSize: 14,
+  },
+  info: {
+    color: Brand.success,
     fontSize: 14,
   },
 });
