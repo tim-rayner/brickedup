@@ -24,6 +24,10 @@ _Avoid_: Account, user page, bio (when meaning the whole presence)
 Discovery filters for who a member wants to see (interested-in, age range, distance) — not part of the Profile card itself.
 _Avoid_: Settings (when meaning these filters); Profile preferences (ambiguous)
 
+**Onboarding**:
+The first-run stepped flow that takes a new User from sign-up to an `active` Profile (activation bar met). Completing it sets `onboardingCompletedAt` and leaves the Profile discoverable once both User and Profile are `active`.
+_Avoid_: Profile setup (vague); registration (when meaning only credentials); activation (when meaning the rule check rather than the member-facing flow)
+
 **Top set**:
 One of up to three LEGO sets featured on a Profile, added barcode-first with a manual picker fallback.
 _Avoid_: Favourite set (when meaning this ranked slot); collection (when meaning a single set)
