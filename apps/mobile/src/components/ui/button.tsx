@@ -22,14 +22,14 @@ export const Button = forwardRef<PressableRef, ButtonProps>(function Button(
       ref={ref}
       accessibilityRole="button"
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={(state) => [
         styles.base,
         variant === 'primary' && styles.primary,
         variant === 'secondary' && styles.secondary,
         variant === 'ghost' && styles.ghost,
-        pressed && !isDisabled && styles.pressed,
+        state.pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
-        typeof style === 'function' ? style({ pressed }) : style,
+        typeof style === 'function' ? style(state) : style,
       ]}
       {...props}>
       <Text

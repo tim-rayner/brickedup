@@ -7,7 +7,7 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Brand } from '@/constants/brand';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const redirectTo = makeRedirectUri({ scheme: 'brickedup', path: 'auth/callback' });
 
@@ -19,6 +19,10 @@ export default function SignUpScreen() {
 
   const onSubmit = async () => {
     setError(null);
+    if (!isSupabaseConfigured) {
+      setError('Supabase env vars are not configured.');
+      return;
+    }
     setLoading(true);
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({

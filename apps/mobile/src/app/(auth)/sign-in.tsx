@@ -6,7 +6,7 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Brand } from '@/constants/brand';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -16,6 +16,10 @@ export default function SignInScreen() {
 
   const onSubmit = async () => {
     setError(null);
+    if (!isSupabaseConfigured) {
+      setError('Supabase env vars are not configured.');
+      return;
+    }
     setLoading(true);
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({

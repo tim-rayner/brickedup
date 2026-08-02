@@ -1,6 +1,6 @@
 import { FunctionsHttpError } from '@supabase/supabase-js';
 
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 export type BootstrapResponse = {
   user: {
@@ -14,6 +14,9 @@ export type BootstrapResponse = {
 };
 
 async function invokeFunction<T>(name: string, body?: Record<string, unknown>): Promise<T> {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.');
+  }
   const { data, error } = await supabase.functions.invoke(name, { body });
 
   if (error) {
