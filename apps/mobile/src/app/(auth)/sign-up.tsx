@@ -51,7 +51,7 @@ export default function SignUpScreen() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Email and password — we’ll confirm your inbox before Onboarding."
+      subtitle="Email and password — we’ll email a 6-digit code before Onboarding."
       footer={
         <Text style={styles.switch}>
           Already have an account?{' '}

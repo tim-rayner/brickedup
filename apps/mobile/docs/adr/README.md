@@ -28,5 +28,5 @@ See [0001-ai-context-and-adr-layout.md](./0001-ai-context-and-adr-layout.md) for
 - [0004](./0004-optional-afol-signals-for-activation.md) — Optional themes / top sets
 - [0005](./0005-auto-approve-onboarding-photos.md) — Auto-approve Onboarding photos
 - [0006](./0006-location-gps-with-typeahead-fallback.md) — GPS + Nominatim typeahead
-- [0007](./0007-email-confirmation-before-onboarding.md) — Email confirmation + deep link
+- [0007](./0007-email-confirmation-before-onboarding.md) — Email confirmation via OTP (`{{ .Token }}`)
 - [0008](./0008-top-sets-free-text-v1.md) — Free-text top sets for v1
