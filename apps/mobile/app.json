@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "brickedup",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
@@ -32,6 +32,20 @@
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      "expo-sqlite",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Bricked Up uses your location to set your Profile place."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Bricked Up needs photo access for your Profile gallery and collection photo."
         }
       ]
     ],
