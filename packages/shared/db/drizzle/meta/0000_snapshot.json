@@ -1,0 +1,1043 @@
+{
+  "id": "9863240d-fb65-4853-b704-afe6013c9366",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.matching_preferences": {
+      "name": "matching_preferences",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "interested_in": {
+          "name": "interested_in",
+          "type": "interested_in",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_age": {
+          "name": "min_age",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "max_age": {
+          "name": "max_age",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "max_distance_km": {
+          "name": "max_distance_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "matching_preferences_id_profiles_fk": {
+          "name": "matching_preferences_id_profiles_fk",
+          "tableFrom": "matching_preferences",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "matching_preferences_select_own": {
+          "name": "matching_preferences_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"matching_preferences\".\"id\" = (select auth.uid())"
+        },
+        "matching_preferences_insert_own": {
+          "name": "matching_preferences_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"matching_preferences\".\"id\" = (select auth.uid())"
+        },
+        "matching_preferences_update_own": {
+          "name": "matching_preferences_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"matching_preferences\".\"id\" = (select auth.uid())",
+          "withCheck": "\"matching_preferences\".\"id\" = (select auth.uid())"
+        },
+        "matching_preferences_delete_own": {
+          "name": "matching_preferences_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"matching_preferences\".\"id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {
+        "matching_preferences_age_range": {
+          "name": "matching_preferences_age_range",
+          "value": "\"matching_preferences\".\"min_age\" <= \"matching_preferences\".\"max_age\""
+        },
+        "matching_preferences_min_age": {
+          "name": "matching_preferences_min_age",
+          "value": "\"matching_preferences\".\"min_age\" >= 18"
+        },
+        "matching_preferences_max_age": {
+          "name": "matching_preferences_max_age",
+          "value": "\"matching_preferences\".\"max_age\" <= 100"
+        },
+        "matching_preferences_max_distance": {
+          "name": "matching_preferences_max_distance",
+          "value": "\"matching_preferences\".\"max_distance_km\" > 0 and \"matching_preferences\".\"max_distance_km\" <= 500"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.profile_favorite_themes": {
+      "name": "profile_favorite_themes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "theme": {
+          "name": "theme",
+          "type": "lego_theme",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "name": "rank",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_favorite_themes_profile_id_fk": {
+          "name": "profile_favorite_themes_profile_id_fk",
+          "tableFrom": "profile_favorite_themes",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profile_favorite_themes_profile_rank_uidx": {
+          "name": "profile_favorite_themes_profile_rank_uidx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "profile_id",
+            "rank"
+          ]
+        },
+        "profile_favorite_themes_profile_theme_uidx": {
+          "name": "profile_favorite_themes_profile_theme_uidx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "profile_id",
+            "theme"
+          ]
+        }
+      },
+      "policies": {
+        "profile_favorite_themes_select_own": {
+          "name": "profile_favorite_themes_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_favorite_themes\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_favorite_themes_select_discoverable": {
+          "name": "profile_favorite_themes_select_discoverable",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1\n  from public.users as viewer\n  where viewer.id = (select auth.uid())\n    and viewer.status = 'active'\n) and exists (\n  select 1\n  from public.profiles as discoverable_profile\n  inner join public.users as discoverable_owner\n    on discoverable_owner.id = discoverable_profile.id\n  where discoverable_profile.id = profile_id\n    and discoverable_profile.status = 'active'\n    and discoverable_owner.status = 'active'\n)"
+        },
+        "profile_favorite_themes_insert_own": {
+          "name": "profile_favorite_themes_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"profile_favorite_themes\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_favorite_themes_update_own": {
+          "name": "profile_favorite_themes_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_favorite_themes\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"profile_favorite_themes\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_favorite_themes_delete_own": {
+          "name": "profile_favorite_themes_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_favorite_themes\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {
+        "profile_favorite_themes_rank_range": {
+          "name": "profile_favorite_themes_rank_range",
+          "value": "\"profile_favorite_themes\".\"rank\" in (1, 2, 3)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.profile_locations": {
+      "name": "profile_locations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location_updated_at": {
+          "name": "location_updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_locations_id_profiles_fk": {
+          "name": "profile_locations_id_profiles_fk",
+          "tableFrom": "profile_locations",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "profile_locations_select_own": {
+          "name": "profile_locations_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_locations\".\"id\" = (select auth.uid())"
+        },
+        "profile_locations_insert_own": {
+          "name": "profile_locations_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"profile_locations\".\"id\" = (select auth.uid())"
+        },
+        "profile_locations_update_own": {
+          "name": "profile_locations_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_locations\".\"id\" = (select auth.uid())",
+          "withCheck": "\"profile_locations\".\"id\" = (select auth.uid())"
+        },
+        "profile_locations_delete_own": {
+          "name": "profile_locations_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_locations\".\"id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.profile_photos": {
+      "name": "profile_photos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "photo_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "storage_path": {
+          "name": "storage_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "moderation_status": {
+          "name": "moderation_status",
+          "type": "moderation_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "profile_photos_one_collection_per_profile": {
+          "name": "profile_photos_one_collection_per_profile",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"profile_photos\".\"kind\" = 'collection'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "profile_photos_one_primary_per_profile": {
+          "name": "profile_photos_one_primary_per_profile",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"profile_photos\".\"is_primary\" = true",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "profile_photos_profile_id_fk": {
+          "name": "profile_photos_profile_id_fk",
+          "tableFrom": "profile_photos",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "profile_photos_select_own": {
+          "name": "profile_photos_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_photos\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_photos_select_discoverable": {
+          "name": "profile_photos_select_discoverable",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1\n  from public.users as viewer\n  where viewer.id = (select auth.uid())\n    and viewer.status = 'active'\n) and exists (\n  select 1\n  from public.profiles as discoverable_profile\n  inner join public.users as discoverable_owner\n    on discoverable_owner.id = discoverable_profile.id\n  where discoverable_profile.id = profile_id\n    and discoverable_profile.status = 'active'\n    and discoverable_owner.status = 'active'\n)"
+        },
+        "profile_photos_insert_own": {
+          "name": "profile_photos_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"profile_photos\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_photos_update_own": {
+          "name": "profile_photos_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_photos\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"profile_photos\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_photos_delete_own": {
+          "name": "profile_photos_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_photos\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {
+        "profile_photos_sort_order_nonnegative": {
+          "name": "profile_photos_sort_order_nonnegative",
+          "value": "\"profile_photos\".\"sort_order\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.profile_top_sets": {
+      "name": "profile_top_sets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rank": {
+          "name": "rank",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "top_set_source",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "barcode": {
+          "name": "barcode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "set_number": {
+          "name": "set_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "theme": {
+          "name": "theme",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profile_top_sets_profile_id_fk": {
+          "name": "profile_top_sets_profile_id_fk",
+          "tableFrom": "profile_top_sets",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "profile_top_sets_profile_rank_uidx": {
+          "name": "profile_top_sets_profile_rank_uidx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "profile_id",
+            "rank"
+          ]
+        }
+      },
+      "policies": {
+        "profile_top_sets_select_own": {
+          "name": "profile_top_sets_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_top_sets\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_top_sets_select_discoverable": {
+          "name": "profile_top_sets_select_discoverable",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1\n  from public.users as viewer\n  where viewer.id = (select auth.uid())\n    and viewer.status = 'active'\n) and exists (\n  select 1\n  from public.profiles as discoverable_profile\n  inner join public.users as discoverable_owner\n    on discoverable_owner.id = discoverable_profile.id\n  where discoverable_profile.id = profile_id\n    and discoverable_profile.status = 'active'\n    and discoverable_owner.status = 'active'\n)"
+        },
+        "profile_top_sets_insert_own": {
+          "name": "profile_top_sets_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"profile_top_sets\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_top_sets_update_own": {
+          "name": "profile_top_sets_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_top_sets\".\"profile_id\" = (select auth.uid())",
+          "withCheck": "\"profile_top_sets\".\"profile_id\" = (select auth.uid())"
+        },
+        "profile_top_sets_delete_own": {
+          "name": "profile_top_sets_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profile_top_sets\".\"profile_id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {
+        "profile_top_sets_rank_range": {
+          "name": "profile_top_sets_rank_range",
+          "value": "\"profile_top_sets\".\"rank\" in (1, 2, 3)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.profiles": {
+      "name": "profiles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "profile_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gender": {
+          "name": "gender",
+          "type": "gender",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_location": {
+          "name": "display_location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "profiles_id_users_fk": {
+          "name": "profiles_id_users_fk",
+          "tableFrom": "profiles",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "profiles_select_own": {
+          "name": "profiles_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profiles\".\"id\" = (select auth.uid())"
+        },
+        "profiles_select_discoverable": {
+          "name": "profiles_select_discoverable",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "exists (\n  select 1\n  from public.users as viewer\n  where viewer.id = (select auth.uid())\n    and viewer.status = 'active'\n) and (\n  status = 'active'\n  and exists (\n    select 1\n    from public.users as discoverable_owner\n    where discoverable_owner.id = id\n      and discoverable_owner.status = 'active'\n  )\n)"
+        },
+        "profiles_insert_own": {
+          "name": "profiles_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"profiles\".\"id\" = (select auth.uid())"
+        },
+        "profiles_update_own": {
+          "name": "profiles_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profiles\".\"id\" = (select auth.uid())",
+          "withCheck": "\"profiles\".\"id\" = (select auth.uid())"
+        },
+        "profiles_delete_own": {
+          "name": "profiles_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"profiles\".\"id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "user_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "onboarding_completed_at": {
+          "name": "onboarding_completed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "users_id_auth_users_fk": {
+          "name": "users_id_auth_users_fk",
+          "tableFrom": "users",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {
+        "users_select_own": {
+          "name": "users_select_own",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"users\".\"id\" = (select auth.uid())"
+        },
+        "users_insert_own": {
+          "name": "users_insert_own",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "\"users\".\"id\" = (select auth.uid())"
+        },
+        "users_update_own": {
+          "name": "users_update_own",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"users\".\"id\" = (select auth.uid())",
+          "withCheck": "\"users\".\"id\" = (select auth.uid())"
+        },
+        "users_delete_own": {
+          "name": "users_delete_own",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "\"users\".\"id\" = (select auth.uid())"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.gender": {
+      "name": "gender",
+      "schema": "public",
+      "values": [
+        "male",
+        "female"
+      ]
+    },
+    "public.interested_in": {
+      "name": "interested_in",
+      "schema": "public",
+      "values": [
+        "male",
+        "female",
+        "both"
+      ]
+    },
+    "public.lego_theme": {
+      "name": "lego_theme",
+      "schema": "public",
+      "values": [
+        "star_wars",
+        "technic",
+        "city",
+        "ideas",
+        "creator",
+        "architecture",
+        "friends",
+        "ninjago",
+        "harry_potter",
+        "marvel",
+        "dc",
+        "icons",
+        "speed_champions",
+        "botanical",
+        "castle",
+        "space",
+        "trains",
+        "other"
+      ]
+    },
+    "public.moderation_status": {
+      "name": "moderation_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "public.photo_kind": {
+      "name": "photo_kind",
+      "schema": "public",
+      "values": [
+        "gallery",
+        "collection"
+      ]
+    },
+    "public.profile_status": {
+      "name": "profile_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "active",
+        "paused",
+        "removed"
+      ]
+    },
+    "public.top_set_source": {
+      "name": "top_set_source",
+      "schema": "public",
+      "values": [
+        "scan",
+        "manual"
+      ]
+    },
+    "public.user_status": {
+      "name": "user_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "suspended",
+        "deleted"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

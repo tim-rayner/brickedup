@@ -1,21 +1,16 @@
-import { z } from 'zod';
+import { profilePhotos } from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-import { moderationStatusSchema, photoKindSchema } from './enums';
+import { createSelectSchema } from './drizzle-zod';
 
 /**
  * Profile media in Supabase Storage.
  * Gallery photos power the swipe stack; collection is a dedicated AFOL slot.
+ * Derived from `@repo/db` `profile_photos` table.
  */
-export const profilePhotoSchema = z.object({
-  id: z.string().uuid(),
-  profileId: z.string().uuid(),
-  kind: photoKindSchema,
+export const profilePhotoSchema = createSelectSchema(profilePhotos, {
   storagePath: z.string().min(1),
   sortOrder: z.number().int().min(0),
-  isPrimary: z.boolean(),
-  moderationStatus: moderationStatusSchema,
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
 export type ProfilePhoto = z.infer<typeof profilePhotoSchema>;

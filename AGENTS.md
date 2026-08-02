@@ -14,7 +14,8 @@ Turborepo monorepo (`pnpm` + Turbo). Read domain language before inventing names
 | Path | Role |
 |------|------|
 | `apps/mobile` | Expo app — primary product surface today |
-| `packages/shared/domain` | Shared domain schemas/types (`@repo/domain`) |
+| `packages/shared/db` | Shared Postgres schema + migrations (`@repo/db`; Drizzle source of truth) |
+| `packages/shared/domain` | Shared Zod validation + domain rules (`@repo/domain`; derived from `@repo/db`) |
 | `packages/theme` | Shared theme package (no separate context) |
 | `packages/eslint-config` | Shared ESLint config |
 | `packages/typescript-config` | Shared TSConfig |
@@ -23,6 +24,7 @@ Turborepo monorepo (`pnpm` + Turbo). Read domain language before inventing names
 
 - Install: `pnpm install` from repo root
 - Dev / build / lint / types: `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm check-types` (Turbo)
+- DB migrations: `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio` (from `@repo/db`; requires `packages/shared/db/.env`)
 
 ## Context vs playbook vs ADR
 
@@ -43,8 +45,9 @@ The mobile Expo app is the entire product; there is no backend, database, or oth
 - Install deps: `pnpm install` from the repo root (Node 22 / pnpm 9 are preinstalled; the update script handles this on startup).
 - Run (web): from `apps/mobile`, `npx expo start --web --port 8081`, or from the root `pnpm --filter mobile web`. Metro serves the web app on port `8081`. `pnpm dev` runs Turbo's persistent `dev` task, but that launches the interactive Expo CLI, so for web verification prefer running `expo start --web` directly.
 - Lint: `pnpm lint` (root) or `pnpm --filter mobile lint` (`expo lint`).
-- Type-check: `pnpm check-types` (Turbo; mobile, `@repo/domain`, and `@repo/theme`).
+- Type-check: `pnpm check-types` (Turbo; mobile, `@repo/db`, `@repo/domain`, and `@repo/theme`).
 - Tests: `pnpm test` (Turbo; `@repo/domain` runs Vitest; other packages no-op until suites land).
+- Never put `DATABASE_URL` in `apps/mobile` — Postgres is server/tooling only via `@repo/db`.
 
 ### Non-obvious caveats
 

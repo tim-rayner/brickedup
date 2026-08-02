@@ -1,0 +1,29 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio",
+    "lint": "echo 'No lint configured for @repo/db'",
+    "test": "echo 'No tests configured for @repo/db'"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "dotenv": "^17.2.1",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.2"
+  }
+}

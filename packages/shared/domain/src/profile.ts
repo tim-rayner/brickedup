@@ -1,31 +1,22 @@
-import { z } from 'zod';
+import { profiles } from '@repo/db/schema';
+import { z } from 'zod/v4';
 
-import { genderSchema, profileStatusSchema } from './enums';
+import { createSelectSchema } from './drizzle-zod';
 
 const isoDateString = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD date of birth');
 
 /**
- * Public dating Profile (1:1 with User).
- * AFOL lists, photos, and matching preferences are separate shapes.
+ * Public dating Profile (shared PK with User).
+ * AFOL lists, photos, matching preferences, and Profile location are separate shapes.
+ * Derived from `@repo/db` `profiles` table.
  */
-export const profileSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  status: profileStatusSchema,
+export const profileSchema = createSelectSchema(profiles, {
   displayName: z.string().trim().min(1).max(40),
   dateOfBirth: isoDateString,
-  gender: genderSchema,
   bio: z.string().trim().min(1).max(500),
-  /** What others see, e.g. "Manchester, UK". */
   displayLocation: z.string().trim().min(1).max(120),
-  /** WGS84 for distance matching — never shown raw on the card. */
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  locationUpdatedAt: z.coerce.date(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
 });
 
 export type Profile = z.infer<typeof profileSchema>;

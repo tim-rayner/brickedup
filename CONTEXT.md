@@ -20,6 +20,14 @@ _Avoid_: Profile (when meaning the private account); auth user (in product prose
 A member's public dating presence in the product (1:1 with a User).
 _Avoid_: Account, user page, bio (when meaning the whole presence)
 
+**Display location**:
+The human-readable place string shown on a Profile (e.g. "Manchester, UK").
+_Avoid_: Location (ambiguous); coordinates; geo
+
+**Profile location**:
+A member's private coordinates used for distance matching — not shown on the public Profile card.
+_Avoid_: Display location; GPS pin (in product prose); geo blob
+
 **Matching preferences**:
 Discovery filters for who a member wants to see (interested-in, age range, distance) — not part of the Profile card itself.
 _Avoid_: Settings (when meaning these filters); Profile preferences (ambiguous)

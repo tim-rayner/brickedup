@@ -36,6 +36,10 @@ export {
   type Profile,
 } from './profile';
 export {
+  profileLocationSchema,
+  type ProfileLocation,
+} from './profile-location';
+export {
   MAX_GALLERY_PHOTOS,
   profilePhotoSchema,
   type ProfilePhoto,

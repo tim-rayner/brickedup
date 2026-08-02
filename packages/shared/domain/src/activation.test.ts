@@ -10,6 +10,7 @@ function validInput(
   overrides: Partial<{
     user: ProfileActivationInput['user'];
     profile: Partial<ProfileActivationInput['profile']>;
+    location: Partial<ProfileActivationInput['location']>;
     photos: ProfileActivationInput['photos'];
     favoriteThemes: ProfileActivationInput['favoriteThemes'];
     topSets: ProfileActivationInput['topSets'];
@@ -24,16 +25,27 @@ function validInput(
       gender: 'male',
       bio: 'AFOL looking for builds and coffee.',
       displayLocation: 'Manchester, UK',
+      ...overrides.profile,
+    },
+    location: {
       latitude: 53.4808,
       longitude: -2.2426,
-      ...overrides.profile,
+      ...overrides.location,
     },
     photos: overrides.photos ?? [
       { kind: 'gallery', moderationStatus: 'approved' },
       { kind: 'collection', moderationStatus: 'approved' },
     ],
-    favoriteThemes: overrides.favoriteThemes ?? [],
-    topSets: overrides.topSets ?? [],
+    favoriteThemes: overrides.favoriteThemes ?? [
+      { rank: 1, theme: 'star_wars' },
+      { rank: 2, theme: 'technic' },
+      { rank: 3, theme: 'city' },
+    ],
+    topSets: overrides.topSets ?? [
+      { rank: 1, setNumber: '75192' },
+      { rank: 2, setNumber: '42115' },
+      { rank: 3, setNumber: '10294' },
+    ],
   };
 }
 
@@ -69,35 +81,21 @@ describe('evaluateProfileActivation', () => {
     }
   });
 
-  it('allows skipping favourite themes and top sets', () => {
-    expect(evaluateProfileActivation(validInput())).toEqual({ ok: true });
-  });
-
-  it('accepts a partial list of favourite themes with unique ranks', () => {
-    expect(
-      evaluateProfileActivation(
-        validInput({
-          favoriteThemes: [
-            { rank: 1, theme: 'star_wars' },
-            { rank: 2, theme: 'technic' },
-          ],
-        }),
-      ),
-    ).toEqual({ ok: true });
-  });
-
-  it('rejects duplicate ranks when favourite themes are provided', () => {
+  it('requires unique ranks 1–3 for favourite themes', () => {
     const result = evaluateProfileActivation(
       validInput({
         favoriteThemes: [
           { rank: 1, theme: 'star_wars' },
           { rank: 1, theme: 'technic' },
+          { rank: 3, theme: 'city' },
         ],
       }),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.reasons).toContain('favourite themes must use unique ranks in 1–3');
+      expect(result.reasons).toContain(
+        'favourite themes must use ranks 1–3 exactly once each',
+      );
     }
   });
 });
