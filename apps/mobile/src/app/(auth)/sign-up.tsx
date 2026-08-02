@@ -7,6 +7,7 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/text-field';
 import { Brand } from '@/constants/brand';
+import { getAuthErrorMessage } from '@/lib/auth-error';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 const redirectTo = makeRedirectUri({ scheme: 'brickedup', path: 'auth/callback' });
@@ -42,7 +43,7 @@ export default function SignUpScreen() {
         params: { email: email.trim() },
       });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not create account');
+      setError(getAuthErrorMessage(e, 'Could not create account'));
     } finally {
       setLoading(false);
     }
